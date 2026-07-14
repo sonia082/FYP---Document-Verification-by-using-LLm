@@ -1,4 +1,3 @@
-
 import os
 import re
 import tempfile
@@ -27,14 +26,17 @@ st.set_page_config(page_title="AI Document Verification", page_icon=" ", layout=
 st.sidebar.title("Settings")
 
 tesseract_cmd = st.sidebar.text_input(
-    "Tesseract exe path",
-    value=r"E:\Softwares\Tesseract-OCR\tesseract.exe",
-    help="OCR engine ka path. Windows par .exe, Linux/Mac par usually 'tesseract'.",
+    "Tesseract exe path (Windows only)",
+    value="",
+    help="Sirf Windows par apna .exe path yahan likhein (e.g. C:\\...\\tesseract.exe). "
+         "Streamlit Cloud / Linux / Mac par ye khali hi chhodein — Tesseract system "
+         "se automatically mil jayega (packages.txt ke zariye install hota hai).",
 )
 poppler_path = st.sidebar.text_input(
-    "Poppler /bin path",
-    value=r"E:\Softwares\Release-24.08.0-0\poppler-24.08.0\Library\bin",
-    help="PDF to image conversion ke liye. Linux/Mac par usually khali chhoड़ sakte hain.",
+    "Poppler /bin path (Windows only)",
+    value="",
+    help="Sirf Windows par apna poppler bin folder path yahan likhein. "
+         "Streamlit Cloud / Linux / Mac par khali hi chhodein.",
 )
 
 use_tiny_llm = st.sidebar.checkbox("Enable Tiny-LLM double-check", value=False)
@@ -49,7 +51,8 @@ st.sidebar.caption(
     "Note: Yeh app apna khud ka virtual environment use karega jisme "
     "`streamlit`, `pytesseract`, `pdf2image`, `pillow`, aur (agar Tiny-LLM "
     "chahiye to) `transformers` + `torch` installed hon. Tesseract OCR aur "
-    "Poppler system-level bhi install hone chahiye."
+    "Poppler system-level bhi install hone chahiye (Streamlit Cloud par "
+    "`packages.txt` file se: tesseract-ocr, tesseract-ocr-urd, poppler-utils)."
 )
 
 if pytesseract is None:
@@ -57,8 +60,11 @@ if pytesseract is None:
 if convert_from_path is None:
     st.sidebar.error("pdf2image installed nahi hai — pip install pdf2image")
 
-if pytesseract and tesseract_cmd:
-    pytesseract.pytesseract.tesseract_cmd = tesseract_cmd
+# Sirf tab apply karo jab user ne khud kuch likha ho (Windows use-case).
+# Linux/Streamlit Cloud par khali chhodne se pytesseract system PATH se
+# khud tesseract dhoond leta hai.
+if pytesseract and tesseract_cmd.strip():
+    pytesseract.pytesseract.tesseract_cmd = tesseract_cmd.strip()
 
 
 # DOCUMENT REQUIREMENTS
@@ -167,7 +173,7 @@ def extract_text(file_path: str) -> str:
         elif file_path.lower().endswith(".pdf"):
             kwargs = {"first_page": 1, "last_page": 1}
             if poppler_path.strip():
-                kwargs["poppler_path"] = poppler_path
+                kwargs["poppler_path"] = poppler_path.strip()
             pages = convert_from_path(file_path, **kwargs)
             if pages:
                 image = pages[0].convert("L")
