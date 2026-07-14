@@ -4,9 +4,9 @@ import pytesseract
 from PIL import Image
 from pdf2image import convert_from_path
 from transformers import AutoTokenizer, AutoModelForCausalLM
-pytesseract.pytesseract.tesseract_cmd = r"E:\Softwares\Tesseract-OCR\tesseract.exe"
-POPPLER_PATH = r"E:\Softwares\Release-24.08.0-0\poppler-24.08.0\Library\bin"
-MODEL_PATH = r"E:\Softwares\model\Tiny-LLM"
+# pytesseract.pytesseract.tesseract_cmd = r"E:\Softwares\Tesseract-OCR\tesseract.exe"
+# POPPLER_PATH = r"E:\Softwares\Release-24.08.0-0\poppler-24.08.0\Library\bin"
+# MODEL_PATH = r"E:\Softwares\model\Tiny-LLM"
 
 print(" Loading local Tiny-LLM model...")
 try:
